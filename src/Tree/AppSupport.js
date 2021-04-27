@@ -8,33 +8,11 @@ const initialData = {
                 children: [
                   {
                     name: "😀",
-                    children: [
-                      {
-                        name: "😀",
-                        
-                      },
-                      {
-                        name: "😁"
-                      },
-                      {
-                        name: "🤣"
-                      }
-                    ]
+                    
                   },
                   {
                     name: "😁",
-                    children: [
-                      {
-                        name: "😀",
-                        
-                      },
-                      {
-                        name: "😁"
-                      },
-                      {
-                        name: "🤣"
-                      }
-                    ]
+                    
                   },
                   {
                     name: "🤣"

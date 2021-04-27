@@ -2,14 +2,20 @@
   "name": "learnd3",
   "version": "0.1.0",
   "private": true,
+  "main": "./public/electron.js",
+  "homepage": "./",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "@tippyjs/react": "^4.2.5",
     "d3": "^6.6.0",
     "ml5": "^0.6.1",
+    "newick": "^2.0.0",
     "phylotree": "^1.0.0-alpha.12",
     "react": "^17.0.2",
+    "react-color": "^2.19.3",
+    "react-component-export-image": "^1.0.6",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
     "resize-observer-polyfill": "^1.5.1",
@@ -19,7 +25,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron": "electron ."
   },
   "eslintConfig": {
     "extends": [
@@ -38,5 +45,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "electron": "^12.0.2"
   }
 }

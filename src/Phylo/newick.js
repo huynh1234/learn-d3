@@ -1,7 +1,10 @@
+// (A:0.1,B:0.2,(C:0.3,D:0.4):0.5);
 export default function parse(s) {
+    let id=1
     const ancestors = []
     let tree = {}
     const tokens = s.split(/\s*(;|\(|\)|,|:)\s*/)
+    console.log(tokens)
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i]
       const subtree = {}
@@ -17,6 +20,7 @@ export default function parse(s) {
           break
         case ')': // optional name next
           tree = ancestors.pop()
+
           break
         case ':': // optional length next
           break
@@ -24,6 +28,10 @@ export default function parse(s) {
           const x = tokens[i - 1]
           if (x === ')' || x === '(' || x === ',') {
             tree.name = token
+            tree.id=id
+            tree.color="#000"
+
+            id++
           } else if (x === ':') {
             tree.length = parseFloat(token)
           }

@@ -6,7 +6,6 @@ import { BlockPicker, ChromePicker, GithubPicker } from "react-color";
 import Tippy from "@tippyjs/react";
 import { Newick, NewickJS } from "newick";
 import jsonToNewick from "./jsonToNewick.js";
-import { exportComponentAsJPEG, exportComponentAsPDF, exportComponentAsPNG } from "react-component-export-image";
 
 export function CountLeafNodes(tree) {
   if (tree.branchset) {
@@ -46,7 +45,7 @@ function prepareConfig(root, treeheight, storechFn) {
   storechFn(data);
 }
 
-export default function Tree(props) {
+export default function TreeCircular(props) {
   const {
     data,
     clickName = () => {},
@@ -56,7 +55,6 @@ export default function Tree(props) {
     Horizontal,
     circularNumber,
     swap,
-    selectNode,
   } = props;
   const ref = useRef();
 
@@ -69,6 +67,7 @@ export default function Tree(props) {
     }
   };
   const [tree, setTree] = useState(parseNewick(data));
+  console.log(tree);
   const leafNodes = CountLeafNodes(tree);
   const outerRadius = leafNodes * 3.77 * circularNumber;
   const innerRadius = outerRadius / 4;
@@ -84,7 +83,6 @@ export default function Tree(props) {
     for (var i = 0; i < array.length; ++i) {
       var obj = array[i];
       if (obj.id === label) {
-        
         array.splice(i, 1);
         return true;
       }
@@ -99,43 +97,11 @@ export default function Tree(props) {
       }
     }
   }
-  function swapNodeChid(array, label) {
-    for (var i = 0; i < array.length; ++i) {
-      var obj = array[i];
-      console.log(obj.id)
-      if (obj.id === label) {
-        array[i].branchset.push(obj.branchset[0])
-        array[i].branchset.shift()
-        // array.splice(i, 1);
-        return true;
-      }
-      if (obj.branchset) {
-        if (swapNodeChid(obj.branchset, label)) {
-          if (obj.branchset.length === 0) {
-            // array[i].branchset.push(obj.branchset[0])
-            // array[i].branchset.shift()
-            delete obj.branchset;
-            array.splice(i, 1);
-
-          }
-          return true;
-        }
-        return true;
-      }
-    }
-  }
-  function swapNodeChidUpdate(d) {
-    var target = d.target.__data__.data.id;
-    console.log(target)
-    swapNodeChid(tree.branchset, target);
-    setTree(tree);
-    update(tree);
-  }
   function changeColor(array, label) {
     for (var i = 0; i < array.length; ++i) {
       var obj = array[i];
       if (obj.id === label) {
-        if (changeColor(obj.branchset, label)) {
+        if (prune(obj.branchset, label)) {
           if (obj.branchset.length === 0) {
             array[i].color = selectedColor;
           }
@@ -143,7 +109,7 @@ export default function Tree(props) {
         }
       }
       if (obj.branchset) {
-        if (changeColor(obj.branchset, label)) {
+        if (prune(obj.branchset, label)) {
           if (obj.branchset.length === 0) {
             array[i].color = selectedColor;
           }
@@ -152,10 +118,9 @@ export default function Tree(props) {
       }
     }
   }
-  
+
   function removeNode(d) {
     var target = d.target.__data__.data.id;
-    
     prune(tree.branchset, target);
     setTree(tree);
     update(tree);
@@ -163,8 +128,6 @@ export default function Tree(props) {
   function updateColor(d) {
     var target = d.target.__data__.source.data.id;
     changeColor(tree.branchset, target);
-    setTree(tree);
-
     update(tree);
   }
 
@@ -178,9 +141,10 @@ export default function Tree(props) {
       .hierarchy(tree, (d) => d.branchset)
       .sum((d) => (d.branchset ? 0 : 1))
       .sort(
-        (a, b) => 
-          (a.value - b.value)*swap || d3.ascending(a.data.length, b.data.length),
-      )
+        (a, b) =>
+          (a.value - b.value) * swap ||
+          d3.ascending(a.data.length, b.data.length)
+      );
 
     cluster(root);
     setBrLength(root, (root.data.length = 0), innerRadius / maxLength(root));
@@ -209,14 +173,13 @@ export default function Tree(props) {
       .data(root.links())
       .join("path")
       .on("mouseover", function (d) {
-        d3.select(this).style("stroke-width", "5");
+        d3.select(this).style("stroke-width", "3");
       })
       .on("mouseout", function (d) {
         d3.select(this).style("stroke-width", "1.75");
       })
       .on("click", function (d) {
         d3.select(this).style("stroke", selectedColor?.current);
-        // console.log(d)
         // updateColor(d)
       })
       .attr("opacity", 1)
@@ -259,24 +222,13 @@ export default function Tree(props) {
         )
         .attr("cy", (d) => d.x)
         .on("mouseover", function (d) {
-          d3.select(this).attr("r", 7);
+          d3.select(this).attr("r", 5);
         })
         .on("mouseout", function (d) {
           d3.select(this).attr("r", 4);
         })
         .on("click", function (d) {
-          switch(selectNode) {
-            case "delete":
-              removeNode(d);
-              break;
-            case "swap":
-              swapNodeChidUpdate(d)
-              break;
-            default:
-              // code block
-          }
-          
-          // console.log(d.target.__data__.data.id)
+          removeNode(d);
           // d3.select(this).attr("pointer-events", "none");
         })
         .attr("opacity", 0)
@@ -388,7 +340,6 @@ export default function Tree(props) {
     innerRadius,
     circularNumber,
     swap,
-    selectNode,
   ]);
   function dowloadImage(params) {
     // var canvas = document.getElementById("svg-chart");
@@ -400,28 +351,6 @@ export default function Tree(props) {
     var serializedTree = jsonToNewick(tree);
     console.log(serializedTree);
   }
-  const ComponentToPrint = React.forwardRef((props, ref2) => (
-    
-    <div ref={ref2} style={{width:"100%",display:"flex",flexDirection:"row"}}>
-        <svg width={svgWidth} height={svgHeight} id="svg-chart">
-          <style
-            dangerouslySetInnerHTML={{
-              __html: `
-            .link--active {
-                stroke: #000 !important;
-                stroke-width: 1.5px;
-            }
-            .label--active {
-                font-weight: bold;
-            }`,
-            }}
-          />
-          <g ref={ref}></g>
-        </svg>
-        
-      </div>
-  ));
-  const componentRef = useRef();
   return (
     <div>
       <Tippy
@@ -439,21 +368,28 @@ export default function Tree(props) {
       </Tippy>
       <button onClick={dowloadImage}>Dowload</button>
       <button onClick={exportNewick}>export newick</button>
-      <ComponentToPrint ref={componentRef} />
-      <button onClick={() => exportComponentAsJPEG(componentRef)}>
-        Export As JPEG
-      </button>
-      <button onClick={() => exportComponentAsPDF(componentRef)}>
-        Export As PDF
-      </button>
-      <button onClick={() => exportComponentAsPNG(componentRef)}>
-        Export As PNG
-      </button>
+      <div >
+        <svg width={svgWidth} height={svgHeight} id="svg-chart">
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
+            .link--active {
+                stroke: #000 !important;
+                stroke-width: 1.5px;
+            }
+            .label--active {
+                font-weight: bold;
+            }`,
+            }}
+          />
+          <g ref={ref}></g>
+        </svg>
+      </div>
     </div>
   );
 }
 
-Tree.propTypes = {
+TreeCircular.propTypes = {
   data: PropTypes.string,
   clickName: PropTypes.func,
   getChildLoc: PropTypes.func,
@@ -461,7 +397,7 @@ Tree.propTypes = {
   layout: PropTypes.string,
 };
 
-Tree.defaultProps = {
+TreeCircular.defaultProps = {
   data: "",
   clickName: null,
   getChildLoc: null,
