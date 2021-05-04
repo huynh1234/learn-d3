@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^12.1.10",
     "@tippyjs/react": "^4.2.5",
     "d3": "^6.6.0",
+    "html2canvas": "^1.0.0-rc.7",
     "ml5": "^0.6.1",
     "newick": "^2.0.0",
     "phylotree": "^1.0.0-alpha.12",

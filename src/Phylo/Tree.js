@@ -7,6 +7,7 @@ import Tippy from "@tippyjs/react";
 import { Newick, NewickJS } from "newick";
 import jsonToNewick from "./jsonToNewick.js";
 import { exportComponentAsJPEG, exportComponentAsPDF, exportComponentAsPNG } from "react-component-export-image";
+import html2canvas from "html2canvas";
 
 export function CountLeafNodes(tree) {
   if (tree.branchset) {
@@ -57,6 +58,7 @@ export default function Tree(props) {
     circularNumber,
     swap,
     selectNode,
+    showBranchLengthNumber
   } = props;
   const ref = useRef();
 
@@ -75,7 +77,7 @@ export default function Tree(props) {
   const svgHeight =
     layout === "circular" ? innerRadius * 2 + 360 : leafNodes * 20;
   const svgWidth =
-    layout === "circular" ? innerRadius * 2 + 360 : leafNodes * 2 + 250; //360 for extra area to vis text
+    layout === "circular" ? innerRadius * 2 + 360 : leafNodes*30  * 2 + 250; //360 for extra area to vis text
 
   const height = layout === "circular" ? outerRadius : leafNodes * 20 * 2;
   const width = layout === "circular" ? innerRadius : leafNodes;
@@ -102,7 +104,6 @@ export default function Tree(props) {
   function swapNodeChid(array, label) {
     for (var i = 0; i < array.length; ++i) {
       var obj = array[i];
-      console.log(obj.id)
       if (obj.id === label) {
         array[i].branchset.push(obj.branchset[0])
         array[i].branchset.shift()
@@ -126,7 +127,6 @@ export default function Tree(props) {
   }
   function swapNodeChidUpdate(d) {
     var target = d.target.__data__.data.id;
-    console.log(target)
     swapNodeChid(tree.branchset, target);
     setTree(tree);
     update(tree);
@@ -281,6 +281,24 @@ export default function Tree(props) {
         })
         .attr("opacity", 0)
         .attr("opacity", 1);
+        if(showBranchLengthNumber===true){
+          svg
+          .append("g")
+          .selectAll("text2")
+          .data(root.descendants())
+          .join("text")
+          .attr("x", (d) =>
+          showBranchLength ? d.radius * 5 * Horizontal -50 : d.y * 5 * Horizontal-50 
+        )
+          .attr("y", (d) => d.x -4)
+          .text((d) => (String(d.data.length) || "").replace(/_/g, " "))
+          .on("mouseover", mouseovered(true))
+          .on("mouseout", mouseovered(false))
+          .on("click", (d) => {
+            console.log(d);
+          });
+        }
+        
 
       svg
         .append("g")
@@ -389,6 +407,7 @@ export default function Tree(props) {
     circularNumber,
     swap,
     selectNode,
+    showBranchLengthNumber
   ]);
   function dowloadImage(params) {
     // var canvas = document.getElementById("svg-chart");
@@ -400,10 +419,16 @@ export default function Tree(props) {
     var serializedTree = jsonToNewick(tree);
     console.log(serializedTree);
   }
+  const download=()=>{
+    html2canvas(document.querySelector("#widget")).then(canvas => {
+      document.body.appendChild(canvas)
+      });
+      }
   const ComponentToPrint = React.forwardRef((props, ref2) => (
     
-    <div ref={ref2} style={{width:"100%",display:"flex",flexDirection:"row"}}>
-        <svg width={svgWidth} height={svgHeight} id="svg-chart">
+    <div ref={ref2} style={{width:svgWidth,height:svgHeight,display:"flex",flexDirection:"row"}} id="widget">
+      
+        <svg width={svgWidth} height={svgHeight} id="svg-chart" >
           <style
             dangerouslySetInnerHTML={{
               __html: `
@@ -418,10 +443,11 @@ export default function Tree(props) {
           />
           <g ref={ref}></g>
         </svg>
-        
+ 
       </div>
   ));
   const componentRef = useRef();
+
   return (
     <div>
       <Tippy
@@ -437,14 +463,11 @@ export default function Tree(props) {
           color branch
         </button>
       </Tippy>
-      <button onClick={dowloadImage}>Dowload</button>
+
       <button onClick={exportNewick}>export newick</button>
       <ComponentToPrint ref={componentRef} />
       <button onClick={() => exportComponentAsJPEG(componentRef)}>
         Export As JPEG
-      </button>
-      <button onClick={() => exportComponentAsPDF(componentRef)}>
-        Export As PDF
       </button>
       <button onClick={() => exportComponentAsPNG(componentRef)}>
         Export As PNG

@@ -4,7 +4,6 @@ export default function parse(s) {
     const ancestors = []
     let tree = {}
     const tokens = s.split(/\s*(;|\(|\)|,|:)\s*/)
-    console.log(tokens)
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i]
       const subtree = {}
