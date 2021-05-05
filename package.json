@@ -1,5 +1,5 @@
 {
-  "name": "learnd3",
+  "name": "uet-Phylotree",
   "version": "0.1.0",
   "private": true,
   "main": "./public/electron.js",
