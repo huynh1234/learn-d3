@@ -16,37 +16,11 @@ import useInterval from "./chart/gauChart/useInterval";
 import AppSupport from "./Tree/AppSupport";
 import AppTree from "./Phylo/AppTree";
 import PhylotreeView from "./PhylotreeForder/PhylotreeView";
+
 let classifier;
 
 function App() {
-  const [data, setData] = useState([25, 30, 45, 60, 10, 65, 75]);
-  // const videoRef = useRef();
-  // const [gaugeData, setGaugeData] = useState([0.5, 0.5]);
-  // const [shouldClassify, setShouldClassify] = useState(false);
-  // useEffect(() => {
-  //   classifier = ml5.imageClassifier("./my-model/model.json", () => {
-  //     navigator.mediaDevices
-  //       .getUserMedia({ video: true, audio: false })
-  //       .then(stream => {
-  //         videoRef.current.srcObject = stream;
-  //         videoRef.current.play();
-  //       });
-  //   });
-  // }, []);
   
-
-  // useInterval(() => {
-  //   if (classifier && shouldClassify) {
-  //     classifier.classify(videoRef.current, (error, results) => {
-  //       if (error) {
-  //         console.error(error);
-  //         return;
-  //       }
-  //       results.sort((a, b) => b.label.localeCompare(a.label));
-  //       setGaugeData(results.map(entry => entry.confidence));
-  //     });
-  //   }
-  // }, 500);
   return (
     <div>
     {/* <BarChart data={data} setData={setData}/>

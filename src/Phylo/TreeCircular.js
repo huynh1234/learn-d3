@@ -58,6 +58,7 @@ export default function TreeCircular(props) {
     circularNumber,
     swap,
     selectNode,
+    showBranchLengthNumber
   } = props;
   const ref = useRef();
 
@@ -76,7 +77,7 @@ export default function TreeCircular(props) {
   const svgHeight =
     layout === "circular" ? innerRadius * 2 + 360 : leafNodes * 20;
   const svgWidth =
-    layout === "circular" ? innerRadius * 2 + 360 : leafNodes * 2 + 250; //360 for extra area to vis text
+    layout === "circular" ? innerRadius * 2 + 360 : leafNodes*30  * 2 + 250; //360 for extra area to vis text
 
   const height = layout === "circular" ? outerRadius : leafNodes * 20 * 2;
   const width = layout === "circular" ? innerRadius : leafNodes;
@@ -280,6 +281,24 @@ export default function TreeCircular(props) {
         })
         .attr("opacity", 0)
         .attr("opacity", 1);
+        if(showBranchLengthNumber===true){
+          svg
+          .append("g")
+          .selectAll("text2")
+          .data(root.descendants())
+          .join("text")
+          .attr("x", (d) =>
+          showBranchLength ? d.radius * 5 * Horizontal -50 : d.y * 5 * Horizontal-50 
+        )
+          .attr("y", (d) => d.x -4)
+          .text((d) => (String(d.data.length) || "").replace(/_/g, " "))
+          .on("mouseover", mouseovered(true))
+          .on("mouseout", mouseovered(false))
+          .on("click", (d) => {
+            console.log(d);
+          });
+        }
+        
 
       svg
         .append("g")
@@ -388,6 +407,7 @@ export default function TreeCircular(props) {
     circularNumber,
     swap,
     selectNode,
+    showBranchLengthNumber
   ]);
   function dowloadImage(params) {
     // var canvas = document.getElementById("svg-chart");
@@ -399,11 +419,16 @@ export default function TreeCircular(props) {
     var serializedTree = jsonToNewick(tree);
     console.log(serializedTree);
   }
+  const download=()=>{
+    html2canvas(document.querySelector("#widget")).then(canvas => {
+      document.body.appendChild(canvas)
+      });
+      }
   const ComponentToPrint = React.forwardRef((props, ref2) => (
     
     <div ref={ref2} style={{width:svgWidth,height:svgHeight,display:"flex",flexDirection:"row"}} id="widget">
       
-        <svg width={svgWidth} height={svgHeight} id="svg-chart">
+        <svg width={svgWidth} height={svgHeight} id="svg-chart" >
           <style
             dangerouslySetInnerHTML={{
               __html: `
@@ -418,14 +443,11 @@ export default function TreeCircular(props) {
           />
           <g ref={ref}></g>
         </svg>
+ 
       </div>
   ));
   const componentRef = useRef();
-const download=()=>{
-  html2canvas(document.querySelector("#widget")).then(canvas => {
-    document.body.appendChild(canvas)
-    });
-    }
+
   return (
     <div>
       <Tippy
@@ -441,14 +463,11 @@ const download=()=>{
           color branch
         </button>
       </Tippy>
-              
+
       <button onClick={exportNewick}>export newick</button>
       <ComponentToPrint ref={componentRef} />
-      <button onClick={() => download(componentRef)}>
+      <button onClick={() => exportComponentAsJPEG(componentRef)}>
         Export As JPEG
-      </button>
-      <button onClick={() => exportComponentAsPDF(componentRef)}>
-        Export As PDF
       </button>
       <button onClick={() => exportComponentAsPNG(componentRef)}>
         Export As PNG

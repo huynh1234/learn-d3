@@ -1,5 +1,6 @@
 // (A:0.1,B:0.2,(C:0.3,D:0.4):0.5);
 export default function parse(s) {
+  try {
     let id=1
     const ancestors = []
     let tree = {}
@@ -37,4 +38,8 @@ export default function parse(s) {
       }
     }
     return tree
+  } catch (error) {
+    alert("ERROR INPUT")
+  }
+    
   }

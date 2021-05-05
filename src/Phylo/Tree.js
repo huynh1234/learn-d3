@@ -6,8 +6,13 @@ import { BlockPicker, ChromePicker, GithubPicker } from "react-color";
 import Tippy from "@tippyjs/react";
 import { Newick, NewickJS } from "newick";
 import jsonToNewick from "./jsonToNewick.js";
-import { exportComponentAsJPEG, exportComponentAsPDF, exportComponentAsPNG } from "react-component-export-image";
+import {
+  exportComponentAsJPEG,
+  exportComponentAsPDF,
+  exportComponentAsPNG,
+} from "react-component-export-image";
 import html2canvas from "html2canvas";
+import exportIcon from "../img/export.svg";
 
 export function CountLeafNodes(tree) {
   if (tree.branchset) {
@@ -49,7 +54,8 @@ function prepareConfig(root, treeheight, storechFn) {
 
 export default function Tree(props) {
   const {
-    data,
+    tree,
+    setTree,
     clickName = () => {},
     getConfig = () => {},
     showBranchLength,
@@ -58,8 +64,9 @@ export default function Tree(props) {
     circularNumber,
     swap,
     selectNode,
-    showBranchLengthNumber
+    showBranchLengthNumber,
   } = props;
+
   const ref = useRef();
 
   const selectedColor = useRef("#1273dE");
@@ -70,14 +77,13 @@ export default function Tree(props) {
       x[i].style.backgroundColor = color.hex;
     }
   };
-  const [tree, setTree] = useState(parseNewick(data));
   const leafNodes = CountLeafNodes(tree);
   const outerRadius = leafNodes * 3.77 * circularNumber;
   const innerRadius = outerRadius / 4;
   const svgHeight =
-    layout === "circular" ? innerRadius * 2 + 360 : leafNodes * 20;
+    layout === "circular" ? innerRadius * 2  : leafNodes * 20;
   const svgWidth =
-    layout === "circular" ? innerRadius * 2 + 360 : leafNodes*30  * 2 + 250; //360 for extra area to vis text
+    layout === "circular" ? innerRadius * 2  : leafNodes * 30  ; //360 for extra area to vis text
 
   const height = layout === "circular" ? outerRadius : leafNodes * 20 * 2;
   const width = layout === "circular" ? innerRadius : leafNodes;
@@ -86,7 +92,6 @@ export default function Tree(props) {
     for (var i = 0; i < array.length; ++i) {
       var obj = array[i];
       if (obj.id === label) {
-        
         array.splice(i, 1);
         return true;
       }
@@ -105,8 +110,8 @@ export default function Tree(props) {
     for (var i = 0; i < array.length; ++i) {
       var obj = array[i];
       if (obj.id === label) {
-        array[i].branchset.push(obj.branchset[0])
-        array[i].branchset.shift()
+        array[i].branchset.push(obj.branchset[0]);
+        array[i].branchset.shift();
         // array.splice(i, 1);
         return true;
       }
@@ -117,7 +122,6 @@ export default function Tree(props) {
             // array[i].branchset.shift()
             delete obj.branchset;
             array.splice(i, 1);
-
           }
           return true;
         }
@@ -152,10 +156,10 @@ export default function Tree(props) {
       }
     }
   }
-  
+
   function removeNode(d) {
     var target = d.target.__data__.data.id;
-    
+
     prune(tree.branchset, target);
     setTree(tree);
     update(tree);
@@ -178,9 +182,10 @@ export default function Tree(props) {
       .hierarchy(tree, (d) => d.branchset)
       .sum((d) => (d.branchset ? 0 : 1))
       .sort(
-        (a, b) => 
-          (a.value - b.value)*swap || d3.ascending(a.data.length, b.data.length),
-      )
+        (a, b) =>
+          (a.value - b.value) * swap ||
+          d3.ascending(a.data.length, b.data.length)
+      );
 
     cluster(root);
     setBrLength(root, (root.data.length = 0), innerRadius / maxLength(root));
@@ -190,7 +195,6 @@ export default function Tree(props) {
       .select(ref.current)
       .attr("font-family", "sans-serif")
       .attr("font-size", 10);
-
     if (layout === "circular") {
       svg.attr(
         "transform",
@@ -265,40 +269,39 @@ export default function Tree(props) {
           d3.select(this).attr("r", 4);
         })
         .on("click", function (d) {
-          switch(selectNode) {
+          switch (selectNode) {
             case "delete":
               removeNode(d);
               break;
             case "swap":
-              swapNodeChidUpdate(d)
+              swapNodeChidUpdate(d);
               break;
             default:
-              // code block
+            // code block
           }
-          
+
           // console.log(d.target.__data__.data.id)
           // d3.select(this).attr("pointer-events", "none");
         })
         .attr("opacity", 0)
         .attr("opacity", 1);
-        if(showBranchLengthNumber===true){
-          svg
+      if (showBranchLengthNumber === true) {
+        svg
           .append("g")
           .selectAll("text2")
           .data(root.descendants())
           .join("text")
           .attr("x", (d) =>
-          showBranchLength ? d.radius * 5 * Horizontal -50 : d.y * 5 * Horizontal-50 
-        )
-          .attr("y", (d) => d.x -4)
+            showBranchLength
+              ? d.radius * 5 * Horizontal - 50
+              : d.y * 5 * Horizontal - 50
+          )
+          .attr("y", (d) => d.x - 4)
           .text((d) => (String(d.data.length) || "").replace(/_/g, " "))
-          .on("mouseover", mouseovered(true))
-          .on("mouseout", mouseovered(false))
           .on("click", (d) => {
             console.log(d);
           });
-        }
-        
+      }
 
       svg
         .append("g")
@@ -394,7 +397,6 @@ export default function Tree(props) {
   useEffect(() => {
     update(tree);
   }, [
-    data,
     clickName,
     getConfig,
     showBranchLength,
@@ -407,7 +409,7 @@ export default function Tree(props) {
     circularNumber,
     swap,
     selectNode,
-    showBranchLengthNumber
+    showBranchLengthNumber,
   ]);
   function dowloadImage(params) {
     // var canvas = document.getElementById("svg-chart");
@@ -417,21 +419,29 @@ export default function Tree(props) {
   function exportNewick(params) {
     // var serializedTree = exportNewick.serialize(tree)
     var serializedTree = jsonToNewick(tree);
-    console.log(serializedTree);
   }
-  const download=()=>{
-    html2canvas(document.querySelector("#widget")).then(canvas => {
-      document.body.appendChild(canvas)
-      });
-      }
+  const download = () => {
+    html2canvas(document.querySelector("#widget")).then((canvas) => {
+      document.body.appendChild(canvas);
+    });
+  };
   const ComponentToPrint = React.forwardRef((props, ref2) => (
-    
-    <div ref={ref2} style={{width:svgWidth,height:svgHeight,display:"flex",flexDirection:"row"}} id="widget">
-      
-        <svg width={svgWidth} height={svgHeight} id="svg-chart" >
-          <style
-            dangerouslySetInnerHTML={{
-              __html: `
+    <div
+      ref={ref2}
+      style={{
+        width: svgWidth,
+        height: svgHeight,
+        display: "flex",
+        flexDirection: "row",
+        marginTop: "4em",
+        marginLeft: "5em",
+      }}
+      id="widget"
+    >
+      <svg width={svgWidth} height={svgHeight} id="svg-chart">
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
             .link--active {
                 stroke: #000 !important;
                 stroke-width: 1.5px;
@@ -439,12 +449,11 @@ export default function Tree(props) {
             .label--active {
                 font-weight: bold;
             }`,
-            }}
-          />
-          <g ref={ref}></g>
-        </svg>
- 
-      </div>
+          }}
+        />
+        <g ref={ref}></g>
+      </svg>
+    </div>
   ));
   const componentRef = useRef();
 
@@ -459,19 +468,90 @@ export default function Tree(props) {
           />
         }
       >
-        <button className="ref-button" style={{ backgroundColor: "#1273DE" }}>
-          color branch
-        </button>
+        <div
+          className="ref-button btn btn-primary"
+          style={{ backgroundColor: "#1273DE" }}
+          style={{
+            position: "absolute",
+            top: "1em",
+            outline: "hidden",
+            left: "3.5em",
+          }}
+        >
+          Color Branch
+        </div>
       </Tippy>
 
-      <button onClick={exportNewick}>export newick</button>
-      <ComponentToPrint ref={componentRef} />
-      <button onClick={() => exportComponentAsJPEG(componentRef)}>
-        Export As JPEG
+      <button
+        onClick={exportNewick}
+        title="export newick"
+        data-toggle="modal"
+        data-target="#myModal"
+        style={{
+          position: "absolute",
+          top: "1em",
+          outline: "hidden",
+          left: "20em",
+        }}
+        className="btn btn-light "
+      >
+        Export
       </button>
-      <button onClick={() => exportComponentAsPNG(componentRef)}>
-        Export As PNG
+
+      <div>
+        <ComponentToPrint ref={componentRef} />
+      </div>
+
+      <button
+        onClick={() => exportComponentAsJPEG(componentRef)}
+        className="btn btn-light"
+        style={{
+          position: "absolute",
+          top: "1em",
+          outline: "hidden",
+          left: "28em",
+        }}
+      >
+        Export JPEG
       </button>
+
+      <button
+        onClick={() => exportComponentAsPNG(componentRef)}
+        className="btn btn-light"
+        style={{
+          position: "absolute",
+          top: "1em",
+          outline: "hidden",
+          left: "36em",
+        }}
+      >
+        Export PNG
+      </button>
+
+      <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">
+                &times;
+              </button>
+              <h4 class="modal-title">Export Newick</h4>
+            </div>
+            <div class="modal-body">
+              <p>{jsonToNewick(tree)}</p>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-default"
+                data-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
