@@ -1,0 +1,93 @@
+.btn-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  .btn-left-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    top:4.5em;
+    position: absolute !important;
+    button {
+      margin: 0 0.5em;
+      img {
+        width: 2em;
+        height: 2em;
+      }
+      border: hidden;
+      width: 2em;
+      height: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background-color: #ffffff;
+    }
+    button:hover {
+      background-color: #dfe6e9;
+      border-radius: 4px;
+    }
+
+  }
+  .search-leaves {
+    right:  2em;
+    top:4.5em;
+    position: absolute !important;
+    display: flex;
+    flex-direction: row;
+    height: 2em;
+    input{
+      height: 2em;
+      margin-right: 1em;
+    }
+    button {
+      img {
+        width: 1.5em;
+        height: 1.5em;
+      }
+      background-color: #FFFFFF;
+      border: hidden;
+      width: 2em;
+      height: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+  }
+}
+.tree-view {
+  .tree-view-top{
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    button:hover {
+      background-color: gray;
+      border-radius: 4px;
+    }
+    button {
+      img {
+        width: 2em;
+        height: 2em;
+      }
+      border: hidden;
+      width: 2em;
+      height: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+  }
+  
+}
+.modal-body{
+  text-align: start;
+}
+.btn{
+  margin-right: 1em;
+}
+svg{
+  overflow: visible !important;
+}
